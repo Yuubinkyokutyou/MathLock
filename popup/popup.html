@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathLock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <h1>MathLock</h1>
+      <p class="subtitle">サイトアクセス計算ゲート</p>
+    </div>
+    
+    <div class="popup-body">
+      <div class="status-section">
+        <h2>現在の状態</h2>
+        <div class="status-info">
+          <div class="status-item">
+            <span class="status-label">ブロックリスト:</span>
+            <span class="status-value" id="blacklist-count">0件</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">ホワイトリスト:</span>
+            <span class="status-value" id="whitelist-count">0件</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">問題数:</span>
+            <span class="status-value" id="problem-count">3問</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">難易度:</span>
+            <span class="status-value" id="difficulty">レベル1</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="quick-actions">
+        <h2>クイックアクション</h2>
+        <button class="action-btn" id="add-current-domain">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          現在のドメインをブロック
+        </button>
+        <button class="action-btn secondary" id="clear-temp-access">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          一時アクセスをクリア
+        </button>
+      </div>
+      
+      <div class="footer-actions">
+        <button class="footer-btn" id="open-options">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 19.46l4.24-4.24M23 12h-6m-6 0H1m13.22 4.22l4.24 4.24M1.54 4.54l4.24 4.24"></path>
+          </svg>
+          設定を開く
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

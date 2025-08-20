@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アイコン生成</title>
+</head>
+<body>
+  <h1>MathLock アイコン生成</h1>
+  <p>このHTMLファイルを開いて、各サイズのアイコンを右クリックで保存してください。</p>
+  
+  <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div>
+      <h3>16x16</h3>
+      <canvas id="canvas16" width="16" height="16"></canvas>
+    </div>
+    <div>
+      <h3>32x32</h3>
+      <canvas id="canvas32" width="32" height="32"></canvas>
+    </div>
+    <div>
+      <h3>48x48</h3>
+      <canvas id="canvas48" width="48" height="48"></canvas>
+    </div>
+    <div>
+      <h3>128x128</h3>
+      <canvas id="canvas128" width="128" height="128"></canvas>
+    </div>
+  </div>
+  
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.5}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const symbol = 'Σ';
+      ctx.fillText(symbol, size / 2, size / 2);
+      
+      const dataURL = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = dataURL;
+      link.textContent = `icon${size}.pngをダウンロード`;
+      canvas.parentElement.appendChild(document.createElement('br'));
+      canvas.parentElement.appendChild(link);
+    }
+    
+    drawIcon('canvas16', 16);
+    drawIcon('canvas32', 32);
+    drawIcon('canvas48', 48);
+    drawIcon('canvas128', 128);
+  </script>
+</body>
+</html>

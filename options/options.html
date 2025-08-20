@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathLock 設定</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>MathLock 設定</h1>
+      <p class="subtitle">サイトアクセス計算ゲート</p>
+    </header>
+    
+    <div class="content">
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="basic">基本設定</button>
+        <button class="tab-btn" data-tab="problem">問題設定</button>
+        <button class="tab-btn" data-tab="blacklist">ブラックリスト</button>
+        <button class="tab-btn" data-tab="whitelist">ホワイトリスト</button>
+      </nav>
+      
+      <div class="tab-content">
+        <div class="tab-panel active" id="basic">
+          <h2>基本設定</h2>
+          
+          <div class="setting-group">
+            <label for="required-count">連続正解必要数</label>
+            <div class="slider-container">
+              <input type="range" id="required-count" min="1" max="10" value="3">
+              <span class="slider-value" id="required-count-value">3問</span>
+            </div>
+            <p class="help-text">サイトにアクセスするために必要な連続正解数</p>
+          </div>
+          
+          <div class="setting-group">
+            <label for="access-duration">アクセス許可時間</label>
+            <div class="input-group">
+              <input type="number" id="access-duration" min="1" max="120" value="15">
+              <span class="input-suffix">分</span>
+            </div>
+            <p class="help-text">全問正解後、ドメイン全体へのアクセスを許可する時間</p>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="problem">
+          <h2>問題設定</h2>
+          
+          <div class="setting-group">
+            <label>難易度</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="difficulty" value="1" checked>
+                <span>レベル1（1桁）</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="difficulty" value="2">
+                <span>レベル2（2桁）</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="difficulty" value="3">
+                <span>レベル3（3桁）</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="setting-group">
+            <label>演算種別</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="op-addition" checked>
+                <span>足し算</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="op-subtraction" checked>
+                <span>引き算</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="op-multiplication" checked>
+                <span>掛け算</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="op-division" checked>
+                <span>割り算</span>
+              </label>
+            </div>
+            <p class="help-text">少なくとも1つの演算を選択してください</p>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="blacklist">
+          <h2>ブラックリスト</h2>
+          
+          <div class="list-add-form">
+            <input type="text" id="blacklist-input" placeholder="正規表現パターンを入力（例: ^https://.*\.youtube\.com/.*）">
+            <button class="btn btn-primary" id="blacklist-add">追加</button>
+          </div>
+          
+          <div class="list-container" id="blacklist-items">
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="whitelist">
+          <h2>ホワイトリスト</h2>
+          
+          <div class="list-add-form">
+            <input type="text" id="whitelist-input" placeholder="正規表現パターンを入力">
+            <button class="btn btn-primary" id="whitelist-add">追加</button>
+          </div>
+          
+          <div class="list-container" id="whitelist-items">
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer">
+        <button class="btn btn-success" id="save-settings">設定を保存</button>
+        <button class="btn btn-secondary" id="reset-settings">初期設定に戻す</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
