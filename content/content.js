@@ -8,25 +8,46 @@ async function checkAndBlockPage() {
   const currentURL = window.location.href;
   
   try {
+    if (!chrome.runtime || !chrome.runtime.id) {
+      console.warn('Extension context invalidated');
+      isProcessing = false;
+      return;
+    }
+    
     const response = await chrome.runtime.sendMessage({
       action: 'checkURL',
       url: currentURL
+    }).catch(error => {
+      if (error.message?.includes('Extension context invalidated')) {
+        console.warn('Extension reloaded or updated, skipping check');
+        return null;
+      }
+      throw error;
     });
     
-    if (response && response.shouldBlock) {
-      if (!challengeModal) {
-        challengeModal = new ChallengeModal();
-        await challengeModal.init(currentURL);
-      }
-    } else {
-      if (challengeModal) {
-        challengeModal.hide();
-        challengeModal.cleanup();
-        challengeModal = null;
+    if (response) {
+      if (response.error) {
+        console.error('Background script error:', response.error);
+      } else if (response.shouldBlock) {
+        if (!challengeModal) {
+          challengeModal = new ChallengeModal();
+          await challengeModal.init(currentURL);
+        }
+      } else {
+        if (challengeModal) {
+          challengeModal.hide();
+          challengeModal.cleanup();
+          challengeModal = null;
+        }
       }
     }
   } catch (error) {
     console.error('Error checking URL:', error);
+    if (challengeModal) {
+      challengeModal.hide();
+      challengeModal.cleanup();
+      challengeModal = null;
+    }
   } finally {
     isProcessing = false;
   }
@@ -34,9 +55,14 @@ async function checkAndBlockPage() {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'showChallenge') {
-    checkAndBlockPage();
+    checkAndBlockPage().then(() => {
+      sendResponse({ success: true });
+    }).catch(error => {
+      console.error('Error in showChallenge handler:', error);
+      sendResponse({ error: error.message });
+    });
+    return true;
   }
-  return true;
 });
 
 let lastURL = window.location.href;

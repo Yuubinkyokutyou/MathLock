@@ -416,86 +416,83 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  handleMessage(request, sender, sendResponse);
+  (async () => {
+    try {
+      const result = await handleMessage(request, sender);
+      sendResponse(result);
+    } catch (error) {
+      console.error('Error in message handler:', error);
+      sendResponse({ error: error.message || 'Unknown error occurred' });
+    }
+  })();
   return true;
 });
 
-async function handleMessage(request, sender, sendResponse) {
+async function handleMessage(request, sender) {
   try {
     switch (request.action) {
       case 'checkURL':
         const shouldBlock = await urlMatcher.shouldBlockURL(request.url, storageManager);
-        sendResponse({ shouldBlock });
-        break;
+        return { shouldBlock };
         
       case 'getSettings':
         const settings = await storageManager.getSettings();
-        sendResponse({ settings });
-        break;
+        return { settings };
         
       case 'saveSettings':
         const success = await storageManager.saveSettings(request.settings);
-        sendResponse({ success });
-        break;
+        return { success };
         
       case 'generateProblem':
         const problemProvider = new MathProblemProvider();
         const problem = problemProvider.generateProblem(request.config);
-        sendResponse({ problem });
-        break;
+        return { problem };
         
       case 'validateAnswer':
         const validator = new MathProblemProvider();
         const isCorrect = validator.validateAnswer(request.problem, request.answer);
-        sendResponse({ isCorrect });
-        break;
+        return { isCorrect };
         
       case 'grantTempAccess':
         const domain = urlMatcher.getDomainFromURL(request.url);
         if (domain) {
           await storageManager.grantTempAccess(domain, request.duration);
-          sendResponse({ success: true });
+          return { success: true };
         } else {
-          sendResponse({ success: false });
+          return { success: false };
         }
-        break;
         
       case 'clearTempAccess':
         const clearDomain = urlMatcher.getDomainFromURL(request.url);
         if (clearDomain) {
           await storageManager.clearTempAccess(clearDomain);
-          sendResponse({ success: true });
+          return { success: true };
         } else {
-          sendResponse({ success: false });
+          return { success: false };
         }
-        break;
         
       case 'getCurrentChallenge':
         const challenge = await storageManager.getCurrentChallenge();
-        sendResponse({ challenge });
-        break;
+        return { challenge };
         
       case 'setCurrentChallenge':
         await storageManager.setCurrentChallenge(request.challenge);
-        sendResponse({ success: true });
-        break;
+        return { success: true };
         
       case 'clearCurrentChallenge':
         await storageManager.clearCurrentChallenge();
-        sendResponse({ success: true });
-        break;
+        return { success: true };
         
       case 'updateChallengeProgress':
         await storageManager.updateChallengeProgress(request.correctCount);
-        sendResponse({ success: true });
-        break;
+        return { success: true };
         
       default:
-        sendResponse({ error: 'Unknown action' });
+        return { error: 'Unknown action: ' + request.action };
     }
   } catch (error) {
     console.error('Error handling message:', error);
-    sendResponse({ error: error.message });
+    throw error;
   }
 }
 
@@ -519,6 +516,10 @@ chrome.webNavigation.onCommitted.addListener(async (details) => {
     chrome.tabs.sendMessage(details.tabId, {
       action: 'showChallenge',
       url: details.url
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error sending showChallenge message:', chrome.runtime.lastError);
+      }
     });
   }
 });

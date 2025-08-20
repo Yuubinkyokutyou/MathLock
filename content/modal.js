@@ -37,6 +37,12 @@ class ChallengeModal {
 
   async getSettings() {
     return new Promise((resolve) => {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        console.warn('Extension context invalidated');
+        resolve(this.getDefaultSettings());
+        return;
+      }
+      
       chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('Error getting settings:', chrome.runtime.lastError);
@@ -70,6 +76,12 @@ class ChallengeModal {
 
   async getCurrentChallenge() {
     return new Promise((resolve) => {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        console.warn('Extension context invalidated');
+        resolve(null);
+        return;
+      }
+      
       chrome.runtime.sendMessage({ action: 'getCurrentChallenge' }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('Error getting challenge:', chrome.runtime.lastError);
@@ -86,6 +98,13 @@ class ChallengeModal {
   async generateNewProblem() {
     const settings = await this.getSettings();
     return new Promise((resolve) => {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        console.warn('Extension context invalidated');
+        this.currentProblem = this.generateFallbackProblem(settings.problemConfig);
+        resolve();
+        return;
+      }
+      
       chrome.runtime.sendMessage({
         action: 'generateProblem',
         config: settings.problemConfig
@@ -116,6 +135,11 @@ class ChallengeModal {
   }
 
   async saveChallenge() {
+    if (!chrome.runtime || !chrome.runtime.id) {
+      console.warn('Extension context invalidated');
+      return;
+    }
+    
     chrome.runtime.sendMessage({
       action: 'setCurrentChallenge',
       challenge: {
@@ -238,6 +262,14 @@ class ChallengeModal {
 
   async validateAnswer(answer) {
     return new Promise((resolve) => {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        console.warn('Extension context invalidated');
+        // Fallback to local validation
+        const parsedAnswer = parseInt(answer, 10);
+        resolve(!isNaN(parsedAnswer) && parsedAnswer === this.currentProblem.answer);
+        return;
+      }
+      
       chrome.runtime.sendMessage({
         action: 'validateAnswer',
         problem: this.currentProblem,
@@ -262,6 +294,13 @@ class ChallengeModal {
   async grantAccess() {
     const settings = await this.getSettings();
     return new Promise((resolve) => {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        console.warn('Extension context invalidated');
+        resolve();
+        window.location.reload();
+        return;
+      }
+      
       chrome.runtime.sendMessage({
         action: 'grantTempAccess',
         url: this.url,
@@ -270,12 +309,17 @@ class ChallengeModal {
         if (chrome.runtime.lastError) {
           console.error('Error granting access:', chrome.runtime.lastError);
         }
-        chrome.runtime.sendMessage({ action: 'clearCurrentChallenge' }, () => {
-          if (chrome.runtime.lastError) {
-            console.error('Error clearing challenge:', chrome.runtime.lastError);
-          }
+        
+        if (chrome.runtime && chrome.runtime.id) {
+          chrome.runtime.sendMessage({ action: 'clearCurrentChallenge' }, () => {
+            if (chrome.runtime.lastError) {
+              console.error('Error clearing challenge:', chrome.runtime.lastError);
+            }
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
       });
     });
   }
